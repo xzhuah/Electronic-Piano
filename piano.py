@@ -1,7 +1,9 @@
 import pygame.midi
 import time
+import turtle
+
 pygame.midi.init()
-output=pygame.midi.Output(pygame.midi.get_default_output_id())
+output = pygame.midi.Output(pygame.midi.get_default_output_id())
 output.set_instrument(0)
 
 '''
@@ -165,13 +167,59 @@ Sound Effects 声音效果
 127 Gunshot                枪击声
 '''
 
-import turtle
 turtle.reset()
 mode = 0
 offset = 0
 current_instrunment = 0
+circle_position = 0
+
+circle_five = {
+    -12: "Cm",
+    -1: '#Cm',
+    -2: 'Dm',
+    -3: "bEm",
+    -4: "Em",
+    -5: "Fm",
+    -6: "#Fm",
+    -7: "Gm",
+    -8: "#Gm",
+    -9: "Am",
+    -10: "bBm",
+    -11: "Bm",
+
+    0: "C",
+    1: "Db, C#",
+    2: "D",
+    3: "Eb",
+    4: "E",
+    5: "F",
+    6: "Gb, F#",
+    7: "G",
+    8: "Ab",
+    9: "A",
+    10: "Bb",
+    11: "B, Cb"
+
+}
+
+
+def toneConvert(node, tone):
+    if tone >= 0:
+        return node + tone
+    else:
+        real_key = node % 12
+        node += abs(tone)
+        if real_key == 4  or real_key == 9 or real_key==10 or real_key == 11:
+            node -= 1
+        return node
+        #
+        # [0, 1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11]
+        # [1, #1, 2,  #2, 3,  4,  #4, 5,  #5, 6, #6,  7]
+        # [1, #1, 2,  *,  2#  4   4#  5,  *   5#, 6,  6#]
+
+
 def changemode():
-    global mode,offset
+    global mode, offset, circle_position
     mode = 1 - mode
     turtle.onkeypress(scale_122, 'z')
     turtle.onkeypress(scale_120, 'x')
@@ -202,8 +250,6 @@ def changemode():
     turtle.onkeypress(scale_56, '8')
     turtle.onkeypress(scale_57, '9')
 
-
-
     turtle.onkeypress(scale_90, 'Z')
     turtle.onkeypress(scale_88, 'X')
     turtle.onkeypress(scale_67, 'C')
@@ -232,8 +278,6 @@ def changemode():
     turtle.onkeypress(scale_38, '&')
     turtle.onkeypress(scale_42, '*')
     turtle.onkeypress(scale_40, '(')
-
-
 
     turtle.onkeyrelease(r_scale_122, 'z')
     turtle.onkeyrelease(r_scale_120, 'x')
@@ -264,9 +308,6 @@ def changemode():
     turtle.onkeyrelease(r_scale_56, '8')
     turtle.onkeyrelease(r_scale_57, '9')
 
-
-
-
     turtle.onkeyrelease(r_scale_90, 'Z')
     turtle.onkeyrelease(r_scale_88, 'X')
     turtle.onkeyrelease(r_scale_67, 'C')
@@ -296,17 +337,39 @@ def changemode():
     turtle.onkeyrelease(r_scale_42, '*')
     turtle.onkeyrelease(r_scale_40, '(')
 
+
+def increaseCircle():
+    global circle_position
+    if circle_position >= 11:
+        circle_position = 11
+    else:
+        circle_position += 1
+    print(circle_position, circle_five[circle_position])
+
+
+def decreaseCircle():
+    global circle_position
+    if circle_position <= -12:
+        circle_position = -12
+    else:
+        circle_position -= 1
+    print(circle_position, circle_five[circle_position])
+
+
 def increaseoffSet():
     global offset
-    if offset<2:
-        offset+=1
+    if offset < 2:
+        offset += 1
+
+
 def decreaseoffSet():
     global offset
-    if offset>-4:
-        offset-=1
+    if offset > -4:
+        offset -= 1
+
 
 def resetInstrument():
-    global output,current_instrunment
+    global output, current_instrunment
     pygame.midi.init()
     new = input("Instrument number")
     try:
@@ -314,13 +377,15 @@ def resetInstrument():
         current_instrunment = int(new)
     except:
         pass
+
+
 def inc_instrunment():
-    global output,current_instrunment
+    global output, current_instrunment
     pygame.midi.init()
-  
+
     try:
-        output.set_instrument(current_instrunment+1)
-        current_instrunment+=1
+        output.set_instrument(current_instrunment + 1)
+        current_instrunment += 1
     except:
         pass
 
@@ -330,575 +395,799 @@ def init_music():
 
 
 def dec_instrunment():
-    global output,current_instrunment
+    global output, current_instrunment
     pygame.midi.init()
-  
+
     try:
-        output.set_instrument(current_instrunment-1)
-        current_instrunment-=1
+        output.set_instrument(current_instrunment - 1)
+        current_instrunment -= 1
     except:
         pass
 
+
 def scale_122():
-    global mode,offset
-    output.note_on(48+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(48 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'z')
+
+
 def r_scale_122():
-    global mode,offset
-    if mode==1:
-        output.note_off(48+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(48 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_122, 'z')
+
+
 def scale_120():
-    global mode,offset
-    output.note_on(50+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(50 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'x')
+
+
 def r_scale_120():
-    global mode,offset
-    if mode==1:
-        output.note_off(50+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(50 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_120, 'x')
+
+
 def scale_99():
-    global mode,offset
-    output.note_on(52+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(52 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'c')
+
+
 def r_scale_99():
-    global mode,offset
-    if mode==1:
-        output.note_off(52+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(52 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_99, 'c')
+
+
 def scale_118():
-    global mode,offset
-    output.note_on(53+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(53 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'v')
+
+
 def r_scale_118():
-    global mode,offset
-    if mode==1:
-        output.note_off(53+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(53 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_118, 'v')
+
+
 def scale_109():
-    global mode,offset
-    output.note_on(55+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(55 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'm')
+
+
 def r_scale_109():
-    global mode,offset
-    if mode==1:
-        output.note_off(55+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(55 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_109, 'm')
+
+
 def scale_44():
-    global mode,offset
-    output.note_on(57+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(57 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, ',')
+
+
 def r_scale_44():
-    global mode,offset
-    if mode==1:
-        output.note_off(57+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(57 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_44, ',')
+
+
 def scale_46():
-    global mode,offset
-    output.note_on(59+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(59 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, '.')
+
+
 def r_scale_46():
-    global mode,offset
-    if mode==1:
-        output.note_off(59+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(59 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_46, '.')
+
+
 def scale_97():
-    global mode,offset
-    output.note_on(60+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(60 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'a')
+
+
 def r_scale_97():
-    global mode,offset
-    if mode==1:
-        output.note_off(60+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(60 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_97, 'a')
+
+
 def scale_115():
-    global mode,offset
-    output.note_on(62+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(62 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 's')
+
+
 def r_scale_115():
-    global mode,offset
-    if mode==1:
-        output.note_off(62+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(62 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_115, 's')
+
+
 def scale_100():
-    global mode,offset
-    output.note_on(64+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(64 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'd')
+
+
 def r_scale_100():
-    global mode,offset
-    if mode==1:
-        output.note_off(64+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(64 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_100, 'd')
+
+
 def scale_102():
-    global mode,offset
-    output.note_on(65+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(65 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'f')
+
+
 def r_scale_102():
-    global mode,offset
-    if mode==1:
-        output.note_off(65+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(65 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_102, 'f')
+
+
 def scale_106():
-    global mode,offset
-    output.note_on(67+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(67 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'j')
+
+
 def r_scale_106():
-    global mode,offset
-    if mode==1:
-        output.note_off(67+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(67 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_106, 'j')
+
+
 def scale_107():
-    global mode,offset
-    output.note_on(69+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(69 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'k')
+
+
 def r_scale_107():
-    global mode,offset
-    if mode==1:
-        output.note_off(69+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(69 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_107, 'k')
+
+
 def scale_108():
-    global mode,offset
-    output.note_on(71+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(71 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'l')
+
+
 def r_scale_108():
-    global mode,offset
-    if mode==1:
-        output.note_off(71+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(71 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_108, 'l')
+
+
 def scale_113():
-    global mode,offset
-    output.note_on(72+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(72 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'q')
+
+
 def r_scale_113():
-    global mode,offset
-    if mode==1:
-        output.note_off(72+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(72 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_113, 'q')
+
+
 def scale_119():
-    global mode,offset
-    output.note_on(74+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(74 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'w')
+
+
 def r_scale_119():
-    global mode,offset
-    if mode==1:
-        output.note_off(74+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(74 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_119, 'w')
+
+
 def scale_101():
-    global mode,offset
-    output.note_on(76+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(76 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'e')
+
+
 def r_scale_101():
-    global mode,offset
-    if mode==1:
-        output.note_off(76+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(76 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_101, 'e')
+
+
 def scale_114():
-    global mode,offset
-    output.note_on(77+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(77 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'r')
+
+
 def r_scale_114():
-    global mode,offset
-    if mode==1:
-        output.note_off(77+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(77 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_114, 'r')
+
+
 def scale_117():
-    global mode,offset
-    output.note_on(79+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(79 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'u')
+
+
 def r_scale_117():
-    global mode,offset
-    if mode==1:
-        output.note_off(79+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(79 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_117, 'u')
+
+
 def scale_105():
-    global mode,offset
-    output.note_on(81+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(81 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'i')
+
+
 def r_scale_105():
-    global mode,offset
-    if mode==1:
-        output.note_off(81+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(81 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_105, 'i')
+
+
 def scale_111():
-    global mode,offset
-    output.note_on(83+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(83 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'o')
+
+
 def r_scale_111():
-    global mode,offset
-    if mode==1:
-        output.note_off(83+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(83 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_111, 'o')
+
+
 def scale_49():
-    global mode,offset
-    output.note_on(84+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(84 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, '1')
+
+
 def r_scale_49():
-    global mode,offset
-    if mode==1:
-        output.note_off(84+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(84 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_49, '1')
+
+
 def scale_50():
-    global mode,offset
-    output.note_on(86+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(86 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, '2')
+
+
 def r_scale_50():
-    global mode,offset
-    if mode==1:
-        output.note_off(86+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(86 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_50, '2')
+
+
 def scale_51():
-    global mode,offset
-    output.note_on(88+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(88 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, '3')
+
+
 def r_scale_51():
-    global mode,offset
-    if mode==1:
-        output.note_off(88+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(88 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_51, '3')
+
+
 def scale_52():
-    global mode,offset
-    output.note_on(89+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(89 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, '4')
+
+
 def r_scale_52():
-    global mode,offset
-    if mode==1:
-        output.note_off(89+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(89 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_52, '4')
+
+
 def scale_55():
-    global mode,offset
-    output.note_on(91+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(91 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, '7')
+
+
 def r_scale_55():
-    global mode,offset
-    if mode==1:
-        output.note_off(91+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(91 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_55, '7')
+
+
 def scale_56():
-    global mode,offset
-    output.note_on(93+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(93 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, '8')
+
+
 def r_scale_56():
-    global mode,offset
-    if mode==1:
-        output.note_off(93+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(93 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_56, '8')
+
+
 def scale_57():
-    global mode,offset
-    output.note_on(95+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(95 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, '9')
+
+
 def r_scale_57():
-    global mode,offset
-    if mode==1:
-        output.note_off(95+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(95 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_57, '9')
+
+
 def scale_90():
-    global mode,offset
-    output.note_on(49+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(49 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'Z')
+
+
 def r_scale_90():
-    global mode,offset
-    if mode==1:
-        output.note_off(49+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(49 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_90, 'Z')
+
+
 def scale_88():
-    global mode,offset
-    output.note_on(51+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(51 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'X')
+
+
 def r_scale_88():
-    global mode,offset
-    if mode==1:
-        output.note_off(51+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(51 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_88, 'X')
+
+
 def scale_67():
-    global mode,offset
-    output.note_on(53+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(53 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'C')
+
+
 def r_scale_67():
-    global mode,offset
-    if mode==1:
-        output.note_off(53+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(53 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_67, 'C')
+
+
 def scale_86():
-    global mode,offset
-    output.note_on(54+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(54 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'V')
+
+
 def r_scale_86():
-    global mode,offset
-    if mode==1:
-        output.note_off(54+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(54 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_86, 'V')
+
+
 def scale_77():
-    global mode,offset
-    output.note_on(56+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(56 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'M')
+
+
 def r_scale_77():
-    global mode,offset
-    if mode==1:
-        output.note_off(56+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(56 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_77, 'M')
+
+
 def scale_60():
-    global mode,offset
-    output.note_on(58+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(58 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, '<')
+
+
 def r_scale_60():
-    global mode,offset
-    if mode==1:
-        output.note_off(58+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(58 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_60, '<')
+
+
 def scale_62():
-    global mode,offset
-    output.note_on(60+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(60 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, '>')
+
+
 def r_scale_62():
-    global mode,offset
-    if mode==1:
-        output.note_off(60+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(60 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_62, '>')
+
+
 def scale_65():
-    global mode,offset
-    output.note_on(61+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(61 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'A')
+
+
 def r_scale_65():
-    global mode,offset
-    if mode==1:
-        output.note_off(61+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(61 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_65, 'A')
+
+
 def scale_83():
-    global mode,offset
-    output.note_on(63+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(63 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'S')
+
+
 def r_scale_83():
-    global mode,offset
-    if mode==1:
-        output.note_off(63+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(63 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_83, 'S')
+
+
 def scale_68():
-    global mode,offset
-    output.note_on(65+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(65 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'D')
+
+
 def r_scale_68():
-    global mode,offset
-    if mode==1:
-        output.note_off(65+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(65 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_68, 'D')
+
+
 def scale_70():
-    global mode,offset
-    output.note_on(66+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(66 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'F')
+
+
 def r_scale_70():
-    global mode,offset
-    if mode==1:
-        output.note_off(66+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(66 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_70, 'F')
+
+
 def scale_74():
-    global mode,offset
-    output.note_on(68+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(68 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'J')
+
+
 def r_scale_74():
-    global mode,offset
-    if mode==1:
-        output.note_off(68+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(68 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_74, 'J')
+
+
 def scale_75():
-    global mode,offset
-    output.note_on(70+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(70 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'K')
+
+
 def r_scale_75():
-    global mode,offset
-    if mode==1:
-        output.note_off(70+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(70 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_75, 'K')
+
+
 def scale_76():
-    global mode,offset
-    output.note_on(72+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(72 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'L')
+
+
 def r_scale_76():
-    global mode,offset
-    if mode==1:
-        output.note_off(72+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(72 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_76, 'L')
+
+
 def scale_81():
-    global mode,offset
-    output.note_on(73+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(73 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'Q')
+
+
 def r_scale_81():
-    global mode,offset
-    if mode==1:
-        output.note_off(73+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(73 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_81, 'Q')
+
+
 def scale_87():
-    global mode,offset
-    output.note_on(75+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(75 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'W')
+
+
 def r_scale_87():
-    global mode,offset
-    if mode==1:
-        output.note_off(75+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(75 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_87, 'W')
+
+
 def scale_69():
-    global mode,offset
-    output.note_on(77+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(77 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'E')
+
+
 def r_scale_69():
-    global mode,offset
-    if mode==1:
-        output.note_off(77+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(77 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_69, 'E')
+
+
 def scale_82():
-    global mode,offset
-    output.note_on(78+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(78 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'R')
+
+
 def r_scale_82():
-    global mode,offset
-    if mode==1:
-        output.note_off(78+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(78 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_82, 'R')
+
+
 def scale_85():
-    global mode,offset
-    output.note_on(80+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(80 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'U')
+
+
 def r_scale_85():
-    global mode,offset
-    if mode==1:
-        output.note_off(80+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(80 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_85, 'U')
+
+
 def scale_73():
-    global mode,offset
-    output.note_on(82+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(82 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'I')
+
+
 def r_scale_73():
-    global mode,offset
-    if mode==1:
-        output.note_off(82+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(82 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_73, 'I')
+
+
 def scale_79():
-    global mode,offset
-    output.note_on(84+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(84 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, 'O')
+
+
 def r_scale_79():
-    global mode,offset
-    if mode==1:
-        output.note_off(84+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(84 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_79, 'O')
+
+
 def scale_33():
-    global mode,offset
-    output.note_on(85+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(85 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, '!')
+
+
 def r_scale_33():
-    global mode,offset
-    if mode==1:
-        output.note_off(85+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(85 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_33, '!')
+
+
 def scale_64():
-    global mode,offset
-    output.note_on(87+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(87 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, '@')
+
+
 def r_scale_64():
-    global mode,offset
-    if mode==1:
-        output.note_off(87+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(87 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_64, '@')
+
+
 def scale_35():
-    global mode,offset
-    output.note_on(89+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(89 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, '#')
+
+
 def r_scale_35():
-    global mode,offset
-    if mode==1:
-        output.note_off(89+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(89 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_35, '#')
+
+
 def scale_36():
-    global mode,offset
-    output.note_on(90+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(90 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, '$')
+
+
 def r_scale_36():
-    global mode,offset
-    if mode==1:
-        output.note_off(90+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(90 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_36, '$')
+
+
 def scale_38():
-    global mode,offset
-    output.note_on(92+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(92 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, '&')
+
+
 def r_scale_38():
-    global mode,offset
-    if mode==1:
-        output.note_off(92+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(92 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_38, '&')
+
+
 def scale_42():
-    global mode,offset
-    output.note_on(94+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(94 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, '*')
+
+
 def r_scale_42():
-    global mode,offset
-    if mode==1:
-        output.note_off(94+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(94 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_42, '*')
+
+
 def scale_40():
-    global mode,offset
-    output.note_on(96+12*offset,127)
-    if mode==1:
+    global mode, offset, circle_position
+    output.note_on(toneConvert(96 + 12 * offset, circle_position), 127)
+    if mode == 1:
         turtle.onkeypress(None, '(')
+
+
 def r_scale_40():
-    global mode,offset
-    if mode==1:
-        output.note_off(96+12*offset,127)
+    global mode, offset, circle_position
+    if mode == 1:
+        output.note_off(toneConvert(96 + 12 * offset, circle_position), 127)
         turtle.onkeypress(scale_40, '(')
+
 
 turtle.onkeypress(scale_122, 'z')
 turtle.onkeypress(scale_120, 'x')
@@ -929,8 +1218,6 @@ turtle.onkeypress(scale_55, '7')
 turtle.onkeypress(scale_56, '8')
 turtle.onkeypress(scale_57, '9')
 
-
-
 turtle.onkeypress(scale_90, 'Z')
 turtle.onkeypress(scale_88, 'X')
 turtle.onkeypress(scale_67, 'C')
@@ -959,8 +1246,6 @@ turtle.onkeypress(scale_36, '$')
 turtle.onkeypress(scale_38, '&')
 turtle.onkeypress(scale_42, '*')
 turtle.onkeypress(scale_40, '(')
-
-
 
 turtle.onkeyrelease(r_scale_122, 'z')
 turtle.onkeyrelease(r_scale_120, 'x')
@@ -991,9 +1276,6 @@ turtle.onkeyrelease(r_scale_55, '7')
 turtle.onkeyrelease(r_scale_56, '8')
 turtle.onkeyrelease(r_scale_57, '9')
 
-
-
-
 turtle.onkeyrelease(r_scale_90, 'Z')
 turtle.onkeyrelease(r_scale_88, 'X')
 turtle.onkeyrelease(r_scale_67, 'C')
@@ -1023,19 +1305,20 @@ turtle.onkeyrelease(r_scale_38, '&')
 turtle.onkeyrelease(r_scale_42, '*')
 turtle.onkeyrelease(r_scale_40, '(')
 
+turtle.onkeyrelease(resetInstrument, '`')
 
-turtle.onkeyrelease(resetInstrument,'`')
+turtle.onkeyrelease(changemode, '\\')
 
-turtle.onkeyrelease(changemode,'\\')
+turtle.onkeyrelease(decreaseoffSet, '[')
 
-turtle.onkeyrelease(decreaseoffSet,'[')
+turtle.onkeyrelease(increaseoffSet, ']')
+turtle.onkeyrelease(inc_instrunment, "=")
+turtle.onkeyrelease(dec_instrunment, "-")
 
-turtle.onkeyrelease(increaseoffSet,']')
-turtle.onkeyrelease(inc_instrunment,"=")
-turtle.onkeyrelease(dec_instrunment,"-")
-
+turtle.onkeyrelease(decreaseCircle, "{")
+turtle.onkeyrelease(increaseCircle, "}")
 
 turtle.listen()
-#output.close()
-#pygame.midi.quit()
+# output.close()
+# pygame.midi.quit()
 turtle.done()
