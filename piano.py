@@ -418,8 +418,6 @@ if __name__ == '__main__':
 
     def on_press(key):
         global playing
-        if key == Key.esc:
-            playing = not playing
         if playing:
             my_effector.handle_key_press(key)
 
