@@ -1,4 +1,4 @@
-from pynput.keyboard import Listener
+from pynput.keyboard import Key, Listener
 import pygame.midi
 
 
@@ -411,16 +411,25 @@ class PianoEffector:
     #     self.record_start = time.time()
 
 
+playing = True
 if __name__ == '__main__':
     my_effector = PianoEffector(Piano())
 
 
     def on_press(key):
-        my_effector.handle_key_press(key)
+        global playing
+        if key == Key.esc:
+            playing = not playing
+        if playing:
+            my_effector.handle_key_press(key)
 
 
     def on_release(key):
-        my_effector.handle_key_release(key)
+        global playing
+        if key == Key.esc:
+            playing = not playing
+        if playing:
+            my_effector.handle_key_release(key)
 
 
     with Listener(
