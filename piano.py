@@ -269,8 +269,7 @@ class PianoEffector:
     def __str__(self):
         return self.piano.__str__() + "\n" + "sustaining:{0}, chord_mode:{1}, low_sound_filter:{2}, low_sound_velocity:{3}".format(
             self.sustaining_mode, self.chord_name[self.chord_mode],
-            self.piano._music_keys[self.low_sound_filter * len(self.piano._base)],
-            self.low_sound_velocity) + "\n" + "recording:{0}".format(self.record_start != 0)
+            self.piano._music_keys[self.low_sound_filter * len(self.piano._base)], self.low_sound_velocity)
 
     def handle_func_key_press(self, key):
 
