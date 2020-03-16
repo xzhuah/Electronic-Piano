@@ -4,6 +4,7 @@ import pygame.midi
 import turtle
 import threading
 
+
 def _pre_pre_process_key(key):
     key = str(key).lower()
     key = key.strip()
@@ -339,6 +340,7 @@ class PianoEffector:
 
     def handle_key_press(self, key):
         # origin_key = key
+
         key = _pre_pre_process_key(key)
         code = self.piano.key_to_code(key)
 
@@ -349,6 +351,7 @@ class PianoEffector:
                 effector(code, key)
 
     def handle_key_release(self, key):
+
         # origin_key = key
         key = _pre_pre_process_key(key)
         code = self.piano.key_to_code(key)
@@ -365,19 +368,24 @@ class PianoEffector:
             return 127
 
     # for sound playing
-    def normal_play(self, code, key=None):
-
-        if code not in self.key_status or not self.key_status[code]:
+    def normal_play(self, code, key):
+        key = key.lower()
+        if key in self.piano._key_transform:
+            key = self.piano._key_transform[key]
+        if key not in self.key_status or not self.key_status[key]:
             self.piano.play_node(code, velocity=self._filter_low_sound(code))
-            self.key_status[code] = True
+            self.key_status[key] = True
 
-    def normal_end(self, code, key=None):
+    def normal_end(self, code, key):
+        key = key.lower()
+        if key in self.piano._key_transform:
+            key = self.piano._key_transform[key]
         if not self.sustaining_mode or self.piano.instrument > 15:
             try:
                 self.piano.stop_node(code)
             except:
                 pass
-        self.key_status[code] = False
+        self.key_status[key] = False
 
     def _chord_generator(self, node):
         if self.chord_mode == 0:
@@ -403,24 +411,15 @@ class PianoEffector:
         else:
             return []
 
-    def chord_effect(self, code, key=None):
+    def chord_effect(self, code, key):
         to_play = self._chord_generator(code)
         for c in to_play:
-            self.normal_play(c)
+            self.normal_play(c, key)
 
-    def chord_effect_release(self, code, key=None):
+    def chord_effect_release(self, code, key):
         to_play = self._chord_generator(code)
         for c in to_play:
-            self.normal_end(c)
-
-    # def music_record(self, code, key=None):
-    #     self.music_buffer.append((key, time.time() - self.record_start, "p", self.shift_pressed))
-    #     self.record_start = time.time()
-    #
-    # def music_record_release(self, code, key=None):
-    #     self.music_buffer.append((key, time.time() - self.record_start, "r", self.shift_pressed))
-    #     self.record_start = time.time()
-
+            self.normal_end(c, key)
 
 
 playing = True
@@ -449,9 +448,7 @@ def maintain_piano():
         listener.join()
 
 
-
 if __name__ == '__main__':
-
     wn = turtle.Screen()
     wn.setup(1000, 80, 850, 900)
     wn.title("Piano")
@@ -464,5 +461,3 @@ if __name__ == '__main__':
     wn.mainloop()
 
     turtle.done()
-
-
