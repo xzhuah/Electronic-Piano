@@ -249,6 +249,7 @@ class PianoEffector:
         self.sustaining_mode = True
 
         self.key_status = {}
+        self.key_status_for_chord_effect = {}
 
         # all sound lower than self.low_sound_filter will decrease velocity
         # by a ratio of self.low_sound_velocity
@@ -373,8 +374,9 @@ class PianoEffector:
         if key in self.piano._key_transform:
             key = self.piano._key_transform[key]
         if key not in self.key_status or not self.key_status[key]:
-            self.piano.play_node(code, velocity=self._filter_low_sound(code))
             self.key_status[key] = True
+            self.piano.play_node(code, velocity=self._filter_low_sound(code))
+
 
     def normal_end(self, code, key):
         key = key.lower()
@@ -412,14 +414,22 @@ class PianoEffector:
             return []
 
     def chord_effect(self, code, key):
-        to_play = self._chord_generator(code)
-        for c in to_play:
-            self.normal_play(c, key)
+        if key not in self.key_status_for_chord_effect or not self.key_status_for_chord_effect[key]:
+            self.key_status_for_chord_effect[key] = True
+            to_play = self._chord_generator(code)
+            for c in to_play:
+                self.piano.play_node(c, velocity=self._filter_low_sound(code))
+
 
     def chord_effect_release(self, code, key):
         to_play = self._chord_generator(code)
-        for c in to_play:
-            self.normal_end(c, key)
+        if not self.sustaining_mode or self.piano.instrument > 15:
+            for c in to_play:
+                try:
+                    self.piano.stop_node(c)
+                except:
+                    pass
+        self.key_status_for_chord_effect[key] = False
 
 
 playing = True
