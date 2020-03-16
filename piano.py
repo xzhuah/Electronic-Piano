@@ -1,6 +1,8 @@
 from pynput.keyboard import Key, Listener
 import pygame.midi
 
+import turtle
+import threading
 
 def _pre_pre_process_key(key):
     key = str(key).lower()
@@ -326,6 +328,15 @@ class PianoEffector:
             return
         print(self)
 
+        try:
+            my_turtle.clear()
+            my_turtle.penup()
+            my_turtle.goto(-200, 0)
+            my_turtle.pendown()
+            my_turtle.write(str(self))
+        except:
+            exit(0)
+
     def handle_key_press(self, key):
         # origin_key = key
         key = _pre_pre_process_key(key)
@@ -411,26 +422,47 @@ class PianoEffector:
     #     self.record_start = time.time()
 
 
+
 playing = True
-if __name__ == '__main__':
-    my_effector = PianoEffector(Piano())
+
+my_effector = PianoEffector(Piano())
 
 
-    def on_press(key):
-        global playing
-        if playing:
-            my_effector.handle_key_press(key)
+def on_press(key):
+    global playing
+    if playing:
+        my_effector.handle_key_press(key)
 
 
-    def on_release(key):
-        global playing
-        if key == Key.esc:
-            playing = not playing
-        if playing:
-            my_effector.handle_key_release(key)
+def on_release(key):
+    global playing
+    if key == Key.esc:
+        playing = not playing
+    if playing:
+        my_effector.handle_key_release(key)
 
 
+def maintain_piano():
     with Listener(
             on_press=on_press,
             on_release=on_release) as listener:
         listener.join()
+
+
+
+if __name__ == '__main__':
+
+    wn = turtle.Screen()
+    wn.setup(1000, 80, 850, 900)
+    wn.title("Piano")
+    my_turtle = turtle.Turtle()
+
+    t = threading.Thread(target=maintain_piano)
+    t.start()
+
+    wn.listen()
+    wn.mainloop()
+
+    turtle.done()
+
+
