@@ -1,7 +1,9 @@
 # Electronic Piano
  An piano program that can mimic different instrument for you to play with.
 
-You will need a python3 environment and pygame package to run this program:
+Python3.9 is not supported! Prefer 3.7/3.6
+
+You will need a python3.7 environment and pygame package to run this program:
 To install pygame:
 
 	pip install pygame
